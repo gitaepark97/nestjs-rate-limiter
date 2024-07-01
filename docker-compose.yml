@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  redis:
+    container_name: redis
+    image: redis
+    volumes:
+      - redis_data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+
+  was1:
+    container_name: was1
+    image: nestjs-rate-limiter-was
+
+  was2:
+    container_name: was2
+    image: nestjs-rate-limiter-was
+
+  nginx:
+    container_name: nginx
+    image: nginx:1.21.5-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - was1
+      - was2
+
+volumes:
+  redis_data:
